@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedRAG – Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════════════════════════════════════════ -->
+<div class="app-shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-mark">Rx</div>
+        <div class="logo-name">Med<span>RAG</span></div>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Collapse">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Doctor info -->
+    <div class="sidebar-doctor" id="sidebarDoctor">
+      <div class="doctor-avatar" id="doctorAvatar">Dr</div>
+      <div class="doctor-info">
+        <div class="doctor-name" id="doctorName">Loading…</div>
+        <div class="doctor-specialty" id="doctorSpecialty">—</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-panel="chat" onclick="switchPanel('chat')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M17 11.5A7 7 0 1 1 3 11.5V10a7 7 0 0 1 14 0v1.5z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7 15.5v1a3 3 0 0 0 6 0v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Ask MedRAG</span>
+      </a>
+      <a class="nav-item" data-panel="history" onclick="switchPanel('history')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Query History</span>
+      </a>
+      <a class="nav-item" data-panel="documents" onclick="switchPanel('documents')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <rect x="4" y="2" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Documents</span>
+      </a>
+      <a class="nav-item" data-panel="stats" onclick="switchPanel('stats')">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M4 14l4-4 3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="2" y="2" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Analytics</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="specialty-badge" id="specialtyBadge">general</div>
+      <button class="btn-logout" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content">
+
+    <!-- ════════════════════════════════════════════════════════════
+         PANEL: CHAT
+    ════════════════════════════════════════════════════════════ -->
+    <section class="panel active" id="panel-chat">
+      <div class="chat-layout">
+
+        <!-- Chat main area -->
+        <div class="chat-main">
+          <div class="chat-header">
+            <div>
+              <h2 class="panel-title">Clinical Query</h2>
+              <p class="panel-sub" id="chatSubtitle">Ask evidence-based medical questions</p>
+            </div>
+            <div class="chat-header-controls">
+              <select class="filter-select" id="specialtyFilter">
+                <option value="">All Specialties</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="neurology">Neurology</option>
+                <option value="oncology">Oncology</option>
+                <option value="pediatrics">Pediatrics</option>
+                <option value="radiology">Radiology</option>
+                <option value="surgery">Surgery</option>
+                <option value="internal_medicine">Internal Medicine</option>
+                <option value="emergency">Emergency</option>
+                <option value="psychiatry">Psychiatry</option>
+                <option value="dermatology">Dermatology</option>
+              </select>
+              <button class="btn-icon" onclick="clearChat()" title="Clear chat">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 4h10M6 4V3h4v1M5 4l.5 9M11 4l-.5 9M8 4v9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            <!-- Welcome state -->
+            <div class="chat-welcome" id="chatWelcome">
+              <div class="welcome-icon">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                  <circle cx="20" cy="20" r="18" stroke="var(--teal)" stroke-width="1.5" opacity="0.4"/>
+                  <path d="M14 20h12M20 14v12" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h3>Ready for Clinical Queries</h3>
+              <p>Ask questions grounded in your uploaded medical literature. Every answer includes sources and a confidence score.</p>
+              <div class="welcome-examples">
+                <button class="example-chip" onclick="fillExample(this)">First-line treatment for hypertension?</button>
+                <button class="example-chip" onclick="fillExample(this)">Diagnosis criteria for Type 2 Diabetes?</button>
+                <button class="example-chip" onclick="fillExample(this)">ACLS protocol for ventricular fibrillation?</button>
+                <button class="example-chip" onclick="fillExample(this)">Antibiotic choice for community-acquired pneumonia?</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input area -->
+          <div class="chat-input-area">
+            <!-- Hallucination warning banner -->
+            <div class="hallucination-banner" id="hallucinationBanner" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1L15 14H1L8 1z" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M8 6v4M8 11.5v.5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span id="hallucinationText">Hallucination risk detected</span>
+            </div>
+
+            <div class="input-wrapper">
+              <textarea
+                id="queryInput"
+                class="query-input"
+                placeholder="Ask a clinical question — answers come exclusively from your uploaded documents…"
+                rows="1"
+                onkeydown="handleInputKeydown(event)"
+                oninput="autoResize(this)"
+              ></textarea>
+
+              <div class="input-actions">
+                <!-- Voice button -->
+                <button class="btn-voice" id="voiceBtn" onclick="toggleVoice()" title="Voice query">
+                  <svg class="voice-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <rect x="6" y="1" width="6" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M3 9a6 6 0 0 0 12 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9 15v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <span class="voice-waves" id="voiceWaves" style="display:none;">
+                    <span></span><span></span><span></span>
+                  </span>
+                </button>
+
+                <!-- Send button -->
+                <button class="btn-send" id="sendBtn" onclick="sendQuery()" title="Send">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 8h12M9 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p class="input-hint">⌘+Enter to send · Answers grounded in retrieved documents only</p>
+          </div>
+        </div>
+
+        <!-- Sources sidebar -->
+        <div class="sources-panel" id="sourcesPanel">
+          <div class="sources-header">
+            <h4>Sources</h4>
+            <span class="sources-count" id="sourcesCount">0</span>
+          </div>
+          <div class="sources-list" id="sourcesList">
+            <div class="sources-empty">Sources will appear here after your first query.</div>
+          </div>
+
+          <!-- Confidence meter -->
+          <div class="confidence-section" id="confidenceSection" style="display:none;">
+            <h4>Confidence</h4>
+            <div class="confidence-ring-wrap">
+              <svg class="confidence-ring" viewBox="0 0 80 80" width="80" height="80">
+                <circle cx="40" cy="40" r="32" stroke="var(--border)" stroke-width="6" fill="none"/>
+                <circle
+                  id="confidenceArc"
+                  cx="40" cy="40" r="32"
+                  stroke="var(--teal)"
+                  stroke-width="6"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="201"
+                  stroke-dashoffset="201"
+                  transform="rotate(-90 40 40)"
+                  style="transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1), stroke 0.4s;"
+                />
+              </svg>
+              <div class="confidence-center">
+                <div class="confidence-pct" id="confidencePct">—</div>
+                <div class="confidence-label" id="confidenceLabel">—</div>
+              </div>
+            </div>
+            <div class="grounding-bars" id="groundingBars"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         PANEL: HISTORY
+    ════════════════════════════════════════════════════════════ -->
+    <section class="panel" id="panel-history">
+      <div class="panel-inner">
+        <div class="panel-heading">
+          <h2 class="panel-title">Query History</h2>
+          <div class="panel-controls">
+            <select class="filter-select" id="historyFilter" onchange="loadHistory()">
+              <option value="">All Specialties</option>
+              <option value="cardiology">Cardiology</option>
+              <option value="neurology">Neurology</option>
+              <option value="internal_medicine">Internal Medicine</option>
+            </select>
+          </div>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <span>Loading history…</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         PANEL: DOCUMENTS
+    ════════════════════════════════════════════════════════════ -->
+    <section class="panel" id="panel-documents">
+      <div class="panel-inner">
+        <div class="panel-heading">
+          <h2 class="panel-title">Medical Documents</h2>
+          <button class="btn-primary-sm" onclick="document.getElementById('fileInput').click()">
+            + Upload Document
+          </button>
+          <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display:none" onchange="handleFileUpload(event)" />
+        </div>
+
+        <!-- Upload form -->
+        <div class="upload-form" id="uploadForm" style="display:none;">
+          <div class="upload-form-grid">
+            <div class="form-group">
+              <label class="form-label">Document Title</label>
+              <input type="text" id="docTitle" class="form-input" placeholder="WHO Hypertension Guidelines 2023" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Specialty</label>
+              <select id="docSpecialty" class="form-select form-input">
+                <option value="general">General</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="neurology">Neurology</option>
+                <option value="oncology">Oncology</option>
+                <option value="internal_medicine">Internal Medicine</option>
+                <option value="emergency">Emergency</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Source / Publisher</label>
+              <input type="text" id="docSource" class="form-input" placeholder="WHO, NEJM, Lancet…" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Year</label>
+              <input type="text" id="docYear" class="form-input" placeholder="2026" />
+            </div>
+          </div>
+          <div class="upload-file-preview" id="uploadPreview"></div>
+          <div class="upload-actions">
+            <button class="btn-ghost" onclick="cancelUpload()">Cancel</button>
+            <button class="btn-primary-sm" onclick="submitUpload()">Upload & Index</button>
+          </div>
+        </div>
+
+        <div class="doc-list" id="docList">
+          <div class="loading-state"><div class="spinner"></div><span>Loading documents…</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         PANEL: STATS
+    ════════════════════════════════════════════════════════════ -->
+    <section class="panel" id="panel-stats">
+      <div class="panel-inner">
+        <div class="panel-heading">
+          <h2 class="panel-title">Analytics</h2>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="loading-state"><div class="spinner"></div><span>Loading analytics…</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── Audio Player (hidden) ── -->
+<audio id="ttsAudio" style="display:none;"></audio>
+
+<!-- ── Toast container ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/chat.js"></script>
+</body>
+</html>

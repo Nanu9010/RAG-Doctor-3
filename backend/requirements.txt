@@ -1,0 +1,43 @@
+# ── Core Django ───────────────────────────────────────────────────────────────
+django==4.2.13
+djangorestframework==3.15.1
+django-cors-headers==4.3.1
+djangorestframework-simplejwt==5.3.1
+python-dotenv==1.0.1
+mysqlclient==2.2.7
+
+# ── LangChain & LLM ───────────────────────────────────────────────────────────
+langchain==0.2.6
+langchain-community==0.2.6
+langchain-openai==0.1.13
+langchain-core==0.2.11
+openai==1.35.3
+
+# ── Vector DB ─────────────────────────────────────────────────────────────────
+qdrant-client==1.11.3
+langchain-qdrant==0.1.4
+
+# ── Embeddings & NLP ──────────────────────────────────────────────────────────
+sentence-transformers==3.0.1
+tiktoken==0.7.0
+numpy==1.26.4
+scikit-learn>=1.4.0
+
+# ── Document Processing ───────────────────────────────────────────────────────
+pypdf==4.2.0
+python-docx==1.1.2
+pymupdf==1.24.2
+
+# ── Voice AI ──────────────────────────────────────────────────────────────────
+faster-whisper==1.0.3
+gtts==2.5.1
+pydub==0.25.1
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+celery==5.4.0
+redis==5.0.6
+django-redis==5.4.0
+gunicorn==22.0.0
+whitenoise==6.7.0
+Pillow==10.3.0
+python-magic==0.4.27

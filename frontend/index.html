@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedRAG – Clinical Intelligence System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ── Login-specific overrides ── */
+    body { background: var(--bg-void); overflow: hidden; }
+
+    .login-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* Left panel — branding */
+    .login-brand {
+      position: relative;
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem;
+      overflow: hidden;
+    }
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(0,212,180,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 80% 80%, rgba(0,150,255,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .brand-grid-lines {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,180,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,180,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .brand-hex {
+      position: absolute; top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border: 1px solid rgba(0,212,180,0.15);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      animation: morph 8s ease-in-out infinite;
+    }
+    .brand-hex-2 {
+      position: absolute; bottom: -80px; left: -80px;
+      width: 240px; height: 240px;
+      border: 1px solid rgba(0,150,255,0.10);
+      border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+      animation: morph 10s ease-in-out infinite reverse;
+    }
+    @keyframes morph {
+      0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+      25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
+      50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+      75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
+    }
+
+    .brand-pulse {
+      position: absolute;
+      bottom: 60px; left: 4rem; right: 4rem;
+      height: 50px;
+      overflow: hidden;
+      opacity: 0.4;
+    }
+    .brand-pulse svg { width: 100%; height: 100%; }
+
+    .brand-logo {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 3rem;
+    }
+    .brand-logo-mark {
+      width: 44px; height: 44px;
+      background: var(--teal);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem; font-weight: 500;
+      color: var(--bg-void);
+      box-shadow: 0 0 24px rgba(0,212,180,0.4);
+    }
+    .brand-logo-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem; font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.05em;
+    }
+    .brand-logo-name span { color: var(--teal); }
+
+    .brand-headline {
+      position: relative; z-index: 2;
+      font-family: 'Crimson Pro', serif;
+      font-size: 2.8rem;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+    .brand-headline em { color: var(--teal); font-style: italic; }
+
+    .brand-desc {
+      position: relative; z-index: 2;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 2.5rem;
+    }
+
+    .brand-pills {
+      position: relative; z-index: 2;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .brand-pill {
+      background: rgba(0,212,180,0.08);
+      border: 1px solid rgba(0,212,180,0.2);
+      color: var(--teal);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* Right panel — form */
+    .login-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem 3rem;
+      background: var(--bg-void);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+    .login-subtitle {
+      font-size: 0.85rem; color: var(--text-muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .tab-switch {
+      display: flex;
+      background: var(--bg-surface);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--teal);
+      color: var(--bg-void);
+    }
+
+    .auth-form { display: none; flex-direction: column; gap: 1rem; }
+    .auth-form.active { display: flex; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .form-input, .form-select {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-input::placeholder { color: var(--text-dim); }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0,212,180,0.12);
+    }
+    .form-select option { background: var(--bg-surface); }
+
+    .form-input.error { border-color: var(--danger); }
+    .error-msg {
+      font-size: 0.75rem; color: var(--danger);
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--bg-void);
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .btn-primary:hover { opacity: 0.92; box-shadow: 0 0 20px rgba(0,212,180,0.35); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary .btn-loader {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: var(--bg-void);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+    .btn-primary.loading .btn-text { display: none; }
+    .btn-primary.loading .btn-loader { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+    }
+
+    .alert-box {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-family: 'Sora', sans-serif;
+      display: none;
+    }
+    .alert-box.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; display: block; }
+    .alert-box.success { background: rgba(0,212,180,0.1); border: 1px solid rgba(0,212,180,0.3); color: var(--teal); display: block; }
+
+    @media (max-width: 768px) {
+      .login-grid { grid-template-columns: 1fr; }
+      .login-brand { display: none; }
+      .login-panel { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-grid">
+    <!-- ── Brand Panel ── -->
+    <div class="login-brand">
+      <div class="brand-grid-lines"></div>
+      <div class="brand-hex"></div>
+      <div class="brand-hex-2"></div>
+
+      <div class="brand-logo">
+        <div class="brand-logo-mark">Rx</div>
+        <div class="brand-logo-name">Med<span>RAG</span></div>
+      </div>
+
+      <h1 class="brand-headline">
+        Clinical answers.<br/>
+        <em>Zero hallucinations.</em>
+      </h1>
+      <p class="brand-desc">
+        Retrieval-augmented intelligence built exclusively for licensed clinicians.
+        Every answer is grounded in verified medical literature — with confidence scores,
+        source citations, and real-time hallucination detection.
+      </p>
+
+      <div class="brand-pills">
+        <span class="brand-pill">⚡ RAG + Qdrant</span>
+        <span class="brand-pill">🛡 Anti-Hallucination</span>
+        <span class="brand-pill">🎙 Voice AI</span>
+        <span class="brand-pill">🔐 JWT Auth</span>
+        <span class="brand-pill">📚 Source Citations</span>
+        <span class="brand-pill">📊 Confidence Score</span>
+      </div>
+
+      <!-- ECG pulse line decoration -->
+      <div class="brand-pulse">
+        <svg viewBox="0 0 600 50" preserveAspectRatio="none" fill="none">
+          <polyline points="0,25 80,25 100,5 115,45 130,10 145,40 160,25 250,25 270,5 285,45 300,10 315,40 330,25 420,25 440,5 455,45 470,10 485,40 500,25 600,25"
+            stroke="rgba(0,212,180,0.6)" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ── Auth Panel ── -->
+    <div class="login-panel">
+      <div class="login-card">
+        <h2 class="login-title">Welcome back</h2>
+        <p class="login-subtitle">Sign in to your clinical workspace</p>
+
+        <div class="tab-switch">
+          <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+          <button class="tab-btn" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <div id="alertBox" class="alert-box"></div>
+
+        <!-- ── Login Form ── -->
+        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="loginEmail" class="form-input" placeholder="doctor@hospital.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn-primary" id="loginBtn">
+            <span class="btn-text">Sign In</span>
+            <span class="btn-loader"></span>
+          </button>
+          <p class="form-footer">Protected by JWT · Data encrypted at rest</p>
+        </form>
+
+        <!-- ── Register Form ── -->
+        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" id="regFirst" class="form-input" placeholder="Jane" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" id="regLast" class="form-input" placeholder="Smith" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="regEmail" class="form-input" placeholder="doctor@hospital.com" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Specialty</label>
+              <select id="regSpecialty" class="form-select form-input" required>
+                <option value="">Select…</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="neurology">Neurology</option>
+                <option value="oncology">Oncology</option>
+                <option value="pediatrics">Pediatrics</option>
+                <option value="radiology">Radiology</option>
+                <option value="surgery">Surgery</option>
+                <option value="internal_medicine">Internal Medicine</option>
+                <option value="emergency">Emergency Medicine</option>
+                <option value="psychiatry">Psychiatry</option>
+                <option value="dermatology">Dermatology</option>
+                <option value="orthopedics">Orthopedics</option>
+                <option value="gynecology">Gynecology</option>
+                <option value="urology">Urology</option>
+                <option value="general">General Practice</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">License No.</label>
+              <input type="text" id="regLicense" class="form-input" placeholder="MCI-12345" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hospital / Institution</label>
+            <input type="text" id="regHospital" class="form-input" placeholder="City General Hospital" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="regPassword" class="form-input" placeholder="Min 8 characters" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" id="regPassword2" class="form-input" placeholder="Repeat password" required />
+          </div>
+          <button type="submit" class="btn-primary" id="registerBtn">
+            <span class="btn-text">Create Account</span>
+            <span class="btn-loader"></span>
+          </button>
+          <p class="form-footer">For licensed medical professionals only</p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

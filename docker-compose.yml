@@ -1,0 +1,111 @@
+version: "3.9"
+
+services:
+  # ── MySQL ─────────────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: medrag_mysql
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-doctor_rag_db}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-medrag_secret}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Qdrant ────────────────────────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: medrag_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # ── Redis ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: medrag_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # ── Django Backend ────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medrag_backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      DB_HOST: db
+      QDRANT_HOST: qdrant
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      redis:
+        condition: service_started
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+
+  # ── Celery Worker ─────────────────────────────────────────────────────────
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medrag_celery
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      DB_HOST: db
+      QDRANT_HOST: qdrant
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+      - media_data:/app/media
+    depends_on:
+      - backend
+    command: celery -A core.celery worker --loglevel=info --concurrency=2
+
+  # ── Frontend (Nginx) ──────────────────────────────────────────────────────
+  frontend:
+    image: nginx:alpine
+    container_name: medrag_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  qdrant_data:
+  redis_data:
+  media_data:

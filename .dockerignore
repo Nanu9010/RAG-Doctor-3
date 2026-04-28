@@ -1,0 +1,9 @@
+.venv
+backend/venv
+backend/venv2
+frontend/node_modules
+__pycache__
+*.log
+.git
+.vscode
+.idea
